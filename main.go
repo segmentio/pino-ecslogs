@@ -13,17 +13,15 @@ import (
 )
 
 func main() {
-	r := bufio.NewReader(os.Stdin)
 	w := bufio.NewWriter(os.Stdout)
+	r := bufio.NewReader(os.Stdin)
 
+	enc := json.NewEncoder(w)
 	dec := json.NewDecoder(r)
 	dec.UseNumber()
 
-	enc := json.NewEncoder(w)
-	m := make(map[string]interface{})
-
 	for {
-		if ev, err := decode(dec, m); err != nil {
+		if ev, err := decode(dec); err != nil {
 			break
 		} else if err = encode(enc, ev); err != nil {
 			break
@@ -33,10 +31,8 @@ func main() {
 	}
 }
 
-func decode(dec *json.Decoder, obj map[string]interface{}) (ev ecslogs.Event, err error) {
-	for k := range obj {
-		delete(obj, k)
-	}
+func decode(dec *json.Decoder) (ev ecslogs.Event, err error) {
+	obj := make(map[string]interface{})
 
 	if err = dec.Decode(&obj); err != nil {
 		switch err.(type) {
